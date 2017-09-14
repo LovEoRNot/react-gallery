@@ -63,6 +63,37 @@ class ImgFigure extends Component {
   }
 }
 
+//控制组件
+class ControllerUnit extends Component {
+  handleClick(e) {
+
+    //如果点击的是当前正在选中态的按钮，则翻转图片，否则将对应的图片居中
+    if (this.props.arrange.isCenter) {
+      this.props.inverse();
+    } else {
+      this.props.center()
+    }
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  render() {
+    let controllerUnitClassName = "controller-unit";
+
+    //如果对应的是居中的图片，显示控制按钮的居中态
+    if (this.props.arrange.isCenter) {
+      controllerUnitClassName += ' is-center';
+
+      //如果同时对应的是翻转图片，则显示控制按钮的翻转态
+      if (this.props.arrange.isInverse) {
+        controllerUnitClassName += ' is-inverse'
+      }
+    }
+
+    return <span className={controllerUnitClassName} onClick={this.handleClick.bind(this)}></span>
+  }
+}
+
+
 class App extends Component {
   constructor(...args) {
     super(...args);
@@ -262,18 +293,24 @@ class App extends Component {
   render() {
 
     let controllerUnits = [],
-        imgFigures = null;
+        imgFigures = [];
 
-    imgFigures = imgDatas.map((value, index) => {     
-      return <ImgFigure 
+    imgDatas.forEach((value, index) => {     
+      imgFigures.push(<ImgFigure 
                 key={index} 
                 ref={`imgFigure${index}`} 
                 data={value} 
                 arrange={this.state.imgsArrangeArr[index]} 
                 inverse={this.inverse(index)}
                 center={this.center(index)}
-              />
-    })
+              />);
+      controllerUnits.push(<ControllerUnit 
+                      key={index} 
+                      arrange={this.state.imgsArrangeArr[index]} 
+                      inverse={this.inverse(index)}
+                      center={this.center(index)}
+                    />)
+    }) 
 
     return <section className="stage" ref="stage">
       <section className="img-sec">
