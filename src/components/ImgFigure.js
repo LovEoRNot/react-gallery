@@ -1,43 +1,50 @@
 import React, { Component } from 'react';
 
-var imgDatas = require('../data/imageDate.json');
-
-//利用自执行函数将图片信息转成图片的URL
-imgDatas = (function  getImageURL(imageDateArr) {
-  for (var i = 0; i < imageDateArr.length; i++) {
-    let singleImageDate = imgDatas[i];
-
-    singleImageDate.imgeURL = require('../images/' + singleImageDate.filename);
-    imgDatas[i] = singleImageDate;
-  }
-  return imageDateArr;
-})(imgDatas);
-
 //单张图片
 class ImgFigure extends Component {
+  //ImgFigure 的点击处理函数
+  handleClick(e) {
+
+    if(this.props.arrange.isCenter) {
+      this.props.inverse();
+    } else {
+      this.props.center();
+    }
+
+    e.stopPropagation();
+    e.preventDefault(); 
+  }
+
   render() {
-    return  <figure className="img-figure">
+
+    let styleObj = {};
+        
+    //如果props属性中指定了这张图的位置则使用
+    if(this.props.arrange) {
+      styleObj = this.props.arrange.pos;
+      //如果图片的旋转角度有值且不为0， 则添加角度
+      if(this.props.arrange.rotate) {
+        styleObj['transform'] = `rotate(${this.props.arrange.rotate}deg)`;  
+      } 
+    }
+
+    if(this.props.arrange.isCenter) {
+      styleObj.zIndex = 11
+    }
+
+    let imgFigureClassName = 'img-figure';
+    imgFigureClassName += this.props.arrange.isInverse ? ' is-inverse' : '';
+
+    return  <figure className={imgFigureClassName} style={styleObj} onClick={this.handleClick.bind(this)}>
       <img src={this.props.data.imgeURL} alt={this.props.data.title}/>
       <figcaption>
         <h2 className="img-title">{this.props.data.title}</h2>
+        <div className="img-back" onClick={this.handleClick.bind(this)}>
+          <p>{this.props.data.desc}</p>
+        </div>
       </figcaption>
     </figure>
   }
 }
 
-//图片组合
-class ImgFigures extends Component {
-  render() {
-    let imgFigures = null;
-    
-    imgFigures = imgDatas.map((value, key) => {
-      return <ImgFigure key={key} data={value} />
-    })
-
-    return <div>
-      {imgFigures}
-    </div>
-  }
-}
-
-export default ImgFigures;
+export default ImgFigure;
